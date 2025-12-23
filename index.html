@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabelă - Joc de Backgammon Românesc</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+        }
+        
+        h1 {
+            color: #3498db;
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #bdc3c7;
+            font-size: 1.2rem;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .game-board-section {
+            flex: 1;
+            min-width: 800px;
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .game-controls-section {
+            flex: 1;
+            min-width: 350px;
+            max-width: 450px;
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .board-container {
+            position: relative;
+            background-color: #c19a6b;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        
+        #game-board {
+            width: 100%;
+            height: 500px;
+            position: relative;
+        }
+        
+        .dice-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .die {
+            width: 60px;
+            height: 60px;
+            background-color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            user-select: none;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: #7f8c8d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .player-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+        
+        .player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .player-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+        
+        .player1 .player-color {
+            background-color: #e74c3c;
+        }
+        
+        .player2 .player-color {
+            background-color: #2ecc71;
+        }
+        
+        .current-player {
+            box-shadow: 0 0 0 3px #f39c12;
+        }
+        
+        .game-status {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.2rem;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .rules-container {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .rules-container h3 {
+            color: #3498db;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .rules-container ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .rules-container li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .point {
+            position: absolute;
+            width: 40px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding-top: 5px;
+        }
+        
+        .point-top {
+            top: 15px;
+        }
+        
+        .point-bottom {
+            bottom: 15px;
+            flex-direction: column-reverse;
+            justify-content: flex-end;
+            padding-top: 0;
+            padding-bottom: 5px;
+        }
+        
+        .checker {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 2px 0;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .player1-checker {
+            background-color: #e74c3c;
+            border: 2px solid #c0392b;
+        }
+        
+        .player2-checker {
+            background-color: #2ecc71;
+            border: 2px solid #27ae60;
+        }
+        
+        .bar {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .home {
+            position: absolute;
+            width: 80px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .home-player1 {
+            right: 15px;
+        }
+        
+        .home-player2 {
+            left: 15px;
+        }
+        
+        .home-label {
+            color: #2c3e50;
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 1200px) {
+            .game-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .game-board-section, .game-controls-section {
+                min-width: 100%;
+                max-width: 800px;
+            }
+        }
+        
+        @media (max-width: 850px) {
+            #game-board {
+                height: 400px;
+            }
+            
+            .point {
+                width: 30px;
+            }
+            
+            .checker {
+                width: 28px;
+                height: 28px;
+            }
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            font-style: italic;
+            color: #bdc3c7;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Tabelă - Backgammon</h1>
+        <p class="subtitle">Jocul clasic de strategie și noroc</p>
+    </header>
+    
+    <div class="game-container">
+        <section class="game-board-section">
+            <h2>Tabla de Joc</h2>
+            <div class="board-container">
+                <div id="game-board">
+                    <!-- Points will be generated by JavaScript -->
+                </div>
+            </div>
+            
+            <div class="dice-container">
+                <div id="die1" class="die">0</div>
+                <div id="die2" class="die">0</div>
+            </div>
+            
+            <div class="controls">
+                <button id="roll-dice">Aruncă zarurile</button>
+                <button id="new-game">Joc nou</button>
+                <button id="hint">Sfat (Hint)</button>
+            </div>
+            
+            <div class="instructions">
+                <p>Apasă pe o piesă pentru a o selecta, apoi pe un punct valid pentru a o muta</p>
+            </div>
+        </section>
+        
+        <section class="game-controls-section">
+            <div class="player-info">
+                <div class="player player1 current-player">
+                    <div class="player-color"></div>
+                    <div>
+                        <h3>Jucătorul 1 (Roșu)</h3>
+                        <p>Piese scoase: <span id="p1-off">0</span></p>
+                    </div>
+                </div>
+                
+                <div class="player player2">
+                    <div class="player-color"></div>
+                    <div>
+                        <h3>Jucătorul 2 (Verde)</h3>
+                        <p>Piese scoase: <span id="p2-off">0</span></p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-status" id="game-status">
+                Jocul a început! Jucătorul 1 aruncă zarurile.
+            </div>
+            
+            <div class="rules-container">
+                <h3>Reguli Backgammon (Românești)</h3>
+                <ul>
+                    <li><strong>Scopul jocului:</strong> Mută toate piesele în casa ta și apoi scoate-le de pe tablă.</li>
+                    <li><strong>Mutarea:</strong> Aruncă zarurile și mută piesele în funcție de numerele afișate.</li>
+                    <li><strong>Capturarea:</strong> Dacă aterizezi pe un punct cu o singură piesă adversă (blot), acea piesă este trimisă la bara de mijloc.</li>
+                    <li><strong>Intrare din bară:</strong> Piesele de pe bară trebuie reintroduse înainte de a muta alte piese.</li>
+                    <li><strong>Scoaterea:</strong> Când toate piesele sunt în casa ta, poți să le scoți folosind valorile zarurilor.</li>
+                    <li><strong>Dublu (Dublet):</strong> Dacă zarurile arată același număr, poți folosi fiecare număr de două ori (4 mutări în total).</li>
+                </ul>
+                <p><strong>Câștigătorul:</strong> Primul jucător care scoate toate piesele de pe tablă câștigă jocul.</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Game state
+        const gameState = {
+            currentPlayer: 1,
+            dice: [0, 0],
+            diceUsed: [false, false],
+            points: [],
+            bar: {1: 0, 2: 0},
+            off: {1: 0, 2: 0},
+            selectedPoint: null,
+            movesLeft: 0,
+            gameOver: false,
+            // Initial board setup (Romanian/Turkish style)
+            initialSetup: [
+                {player: 2, count: 5},   // Point 1
+                {player: 0, count: 0},   // Point 2
+                {player: 0, count: 0},   // Point 3
+                {player: 0, count: 0},   // Point 4
+                {player: 0, count: 0},   // Point 5
+                {player: 1, count: 5},   // Point 6
+                {player: 0, count: 0},   // Point 7
+                {player: 1, count: 3},   // Point 8
+                {player: 0, count: 0},   // Point 9
+                {player: 0, count: 0},   // Point 10
+                {player: 0, count: 0},   // Point 11
+                {player: 2, count: 5},   // Point 12
+                {player: 1, count: 5},   // Point 13
+                {player: 0, count: 0},   // Point 14
+                {player: 0, count: 0},   // Point 15
+                {player: 0, count: 0},   // Point 16
+                {player: 2, count: 3},   // Point 17
+                {player: 0, count: 0},   // Point 18
+                {player: 2, count: 5},   // Point 19
+                {player: 0, count: 0},   // Point 20
+                {player: 0, count: 0},   // Point 21
+                {player: 0, count: 0},   // Point 22
+                {player: 0, count: 0},   // Point 23
+                {player: 1, count: 5}    // Point 24
+            ]
+        };
+
+        // DOM Elements
+        const gameBoard = document.getElementById('game-board');
+        const die1Element = document.getElementById('die1');
+        const die2Element = document.getElementById('die2');
+        const rollDiceButton = document.getElementById('roll-dice');
+        const newGameButton = document.getElementById('new-game');
+        const hintButton = document.getElementById('hint');
+        const gameStatusElement = document.getElementById('game-status');
+        const p1OffElement = document.getElementById('p1-off');
+        const p2OffElement = document.getElementById('p2-off');
+        const player1Element = document.querySelector('.player1');
+        const player2Element = document.querySelector('.player2');
+
+        // Initialize the game
+        function initGame() {
+            resetGameState();
+            createBoard();
+            updateDisplay();
+            setupEventListeners();
+        }
+
+        // Reset game state
+        function resetGameState() {
+            gameState.currentPlayer = 1;
+            gameState.dice = [0, 0];
+            gameState.diceUsed = [false, false];
+            gameState.bar = {1: 0, 2: 0};
+            gameState.off = {1: 0, 2: 0};
+            gameState.selectedPoint = null;
+            gameState.movesLeft = 0;
+            gameState.gameOver = false;
+            
+            // Initialize points from initial setup
+            gameState.points = [];
+            for (let i = 0; i < 24; i++) {
+                gameState.points.push({
+                    player: gameState.initialSetup[i].player,
+                    count: gameState.initialSetup[i].count
+                });
+            }
+        }
+
+        // Create the game board
+        function createBoard() {
+            gameBoard.innerHTML = '';
+            
+            // Create home areas
+            createHomeArea(1, 'player1-home', 'Jucător 1 - Casa', 'home-player1');
+            createHomeArea(2, 'player2-home', 'Jucător 2 - Casa', 'home-player2');
+            
+            // Create bar
+            const bar = document.createElement('div');
+            bar.className = 'bar';
+            bar.id = 'bar';
+            gameBoard.appendChild(bar);
+            
+            // Create points
+            for (let i = 0; i < 24; i++) {
+                const point = document.createElement('div');
+                point.className = `point ${i < 12 ? 'point-top' : 'point-bottom'}`;
+                point.id = `point-${i}`;
+                point.dataset.index = i;
+                
+                // Position the point
+                const position = calculatePointPosition(i);
+                point.style.left = `${position.x}px`;
+                point.style.top = position.top ? `${position.top}px` : 'auto';
+                point.style.bottom = position.bottom ? `${position.bottom}px` : 'auto';
+                
+                gameBoard.appendChild(point);
+            }
+            
+            updateBoard();
+        }
+
+        // Calculate point position
+        function calculatePointPosition(index) {
+            const boardWidth = gameBoard.offsetWidth;
+            const boardHeight = gameBoard.offsetHeight;
+            const pointWidth = 40;
+            const spacing = 5;
+            
+            let x, top, bottom;
+            
+            if (index < 12) {
+                // Top row
+                const col = index < 6 ? 5 - index : index;
+                x = (boardWidth / 2) + (index < 6 ? 
+                    -((col + 1) * pointWidth + col * spacing) - 20 : 
+                    ((col - 6) * pointWidth + (col - 6) * spacing) + 20);
+                top = 15;
+            } else {
+                // Bottom row
+                const bottomIndex = index - 12;
+                const col = bottomIndex < 6 ? 5 - bottomIndex : bottomIndex;
+                x = (boardWidth / 2) + (bottomIndex < 6 ? 
+                    -((col + 1) * pointWidth + col * spacing) - 20 : 
+                    ((col - 6) * pointWidth + (col - 6) * spacing) + 20);
+                bottom = 15;
+            }
+            
+            return { x, top, bottom };
+        }
+
+        // Create home area
+        function createHomeArea(player, id, label, className) {
+            const home = document.createElement('div');
+            home.className = `home ${className}`;
+            home.id = id;
+            
+            const labelElement = document.createElement('div');
+            labelElement.className = 'home-label';
+            labelElement.textContent = label;
+            home.appendChild(labelElement);
+            
+            gameBoard.appendChild(home);
+        }
+
+        // Update the board display
+        function updateBoard() {
+            // Clear all points
+            for (let i = 0; i < 24; i++) {
+                const pointElement = document.getElementById(`point-${i}`);
+                pointElement.innerHTML = '';
+                
+                // Add checkers to the point
+                const point = gameState.points[i];
+                if (point.count > 0) {
+                    for (let j = 0; j < point.count; j++) {
+                        const checker = document.createElement('div');
+                        checker.className = `checker player${point.player}-checker`;
+                        pointElement.appendChild(checker);
+                    }
+                }
+            }
+            
+            // Update bar
+            const barElement = document.getElementById('bar');
+            barElement.innerHTML = '';
+            
+            for (let player = 1; player <= 2; player++) {
+                for (let i = 0; i < gameState.bar[player]; i++) {
+                    const checker = document.createElement('div');
+                    checker.className = `checker player${player}-checker`;
+                    barElement.appendChild(checker);
+                }
+            }
+            
+            // Update home areas
+            updateHomeArea(1);
+            updateHomeArea(2);
+            
+            // Update off counts
+            p1OffElement.textContent = gameState.off[1];
+            p2OffElement.textContent = gameState.off[2];
+        }
+
+        // Update home area
+        function updateHomeArea(player) {
+            const homeElement = document.getElementById(`player${player}-home`);
+            // Remove existing checkers except the label
+            const label = homeElement.querySelector('.home-label');
+            homeElement.innerHTML = '';
+            if (label) homeElement.appendChild(label);
+            
+            // Add off-board checkers to home
+            const offCount = gameState.off[player];
+            for (let i = 0; i < offCount; i++) {
+                const checker = document.createElement('div');
+                checker.className = `checker player${player}-checker`;
+                homeElement.appendChild(checker);
+            }
+        }
+
+        // Roll dice
+        function rollDice() {
+            if (gameState.gameOver) return;
+            
+            // Reset dice used state
+            gameState.diceUsed = [false, false];
+            
+            // Roll two dice
+            gameState.dice = [
+                Math.floor(Math.random() * 6) + 1,
+                Math.floor(Math.random() * 6) + 1
+            ];
+            
+            // Check for doubles
+            if (gameState.dice[0] === gameState.dice[1]) {
+                gameState.movesLeft = 4;
+            } else {
+                gameState.movesLeft = 2;
+            }
+            
+            // Update display
+            die1Element.textContent = gameState.dice[0];
+            die2Element.textContent = gameState.dice[1];
+            
+            // Check if player has any valid moves
+            if (!hasValidMoves()) {
+                gameStatusElement.textContent = `Jucătorul ${gameState.currentPlayer} nu are mutări valide. Trecere la următorul jucător.`;
+                setTimeout(() => {
+                    switchPlayer();
+                    rollDice();
+                }, 2000);
+                return;
+            }
+            
+            updateStatus();
+        }
+
+        // Check if current player has any valid moves
+        function hasValidMoves() {
+            const player = gameState.currentPlayer;
+            const dice = gameState.dice;
+            
+            // Check if player has pieces on the bar
+            if (gameState.bar[player] > 0) {
+                for (let die of dice) {
+                    if (canEnterFromBar(player, die)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // Check normal moves
+            for (let i = 0; i < 24; i++) {
+                if (gameState.points[i].player === player) {
+                    for (let die of dice) {
+                        const targetIndex = player === 1 ? i - die : i + die;
+                        if (isValidMove(player, i, targetIndex, die)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            
+            // Check bearing off moves
+            if (canBearOff(player)) {
+                for (let die of dice) {
+                    if (canBearOffWithDie(player, die)) {
+                        return true;
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        // Check if player can enter from bar with a specific die
+        function canEnterFromBar(player, die) {
+            const targetIndex = player === 1 ? 24 - die : die - 1;
+            const targetPoint = gameState.points[targetIndex];
+            
+            return targetPoint.player === player || targetPoint.count <= 1;
+        }
+
+        // Check if a move is valid
+        function isValidMove(player, fromIndex, toIndex, die) {
+            // Check if from point belongs to player
+            if (gameState.points[fromIndex].player !== player) return false;
+            
+            // Check if toIndex is valid
+            if (toIndex < 0 || toIndex > 23) {
+                // Check if player can bear off
+                if (toIndex < 0 && player === 1) return canBearOffWithDie(player, die, fromIndex);
+                if (toIndex > 23 && player === 2) return canBearOffWithDie(player, die, fromIndex);
+                return false;
+            }
+            
+            // Check if target point is blocked
+            const targetPoint = gameState.points[toIndex];
+            if (targetPoint.player === 3 - player && targetPoint.count > 1) return false;
+            
+            // Check direction
+            if (player === 1 && toIndex >= fromIndex) return false;
+            if (player === 2 && toIndex <= fromIndex) return false;
+            
+            return true;
+        }
+
+        // Check if player can bear off
+        function canBearOff(player) {
+            // All player's pieces must be in their home board
+            const homeStart = player === 1 ? 18 : 0;
+            const homeEnd = player === 1 ? 23 : 5;
+            
+            for (let i = 0; i < 24; i++) {
+                if (gameState.points[i].player === player) {
+                    if (player === 1 && (i < homeStart || i > homeEnd)) return false;
+                    if (player === 2 && (i < homeStart || i > homeEnd)) return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // Check if player can bear off with a specific die
+        function canBearOffWithDie(player, die, fromIndex = null) {
+            if (!canBearOff(player)) return false;
+            
+            if (fromIndex !== null) {
+                // Check specific piece
+                const requiredMove = player === 1 ? fromIndex + 1 : 24 - fromIndex;
+                if (die >= requiredMove) return true;
+                
+                // Check if there are no pieces farther than this one
+                if (player === 1) {
+                    for (let i = fromIndex - 1; i >= 18; i--) {
+                        if (gameState.points[i].player === player) return false;
+                    }
+                } else {
+                    for (let i = fromIndex + 1; i <= 5; i++) {
+                        if (gameState.points[i].player === player) return false;
+                    }
+                }
+                return true;
+            }
+            
+            // Check any piece can bear off with this die
+            for (let i = 0; i < 24; i++) {
+                if (gameState.points[i].player === player) {
+                    const requiredMove = player === 1 ? i + 1 : 24 - i;
+                    if (die >= requiredMove) return true;
+                }
+            }
+            
+            return false;
+        }
+
+        // Switch to the other player
+        function switchPlayer() {
+            gameState.currentPlayer = 3 - gameState.currentPlayer;
+            gameState.dice = [0, 0];
+            gameState.movesLeft = 0;
+            gameState.selectedPoint = null;
+            
+            // Update player highlights
+            player1Element.classList.toggle('current-player', gameState.currentPlayer === 1);
+            player2Element.classList.toggle('current-player', gameState.currentPlayer === 2);
+            
+            updateStatus();
+        }
+
+        // Make a move
+        function makeMove(fromIndex, toIndex) {
+            const player = gameState.currentPlayer;
+            let dieUsed = null;
+            
+            // Determine which die was used
+            if (toIndex < 0 || toIndex > 23) {
+                // Bearing off
+                const requiredMove = player === 1 ? fromIndex + 1 : 24 - fromIndex;
+                for (let i = 0; i < 2; i++) {
+                    if (!gameState.diceUsed[i] && gameState.dice[i] >= requiredMove) {
+                        dieUsed = i;
+                        break;
+                    }
+                }
+            } else {
+                // Normal move
+                const moveDistance = Math.abs(toIndex - fromIndex);
+                for (let i = 0; i < 2; i++) {
+                    if (!gameState.diceUsed[i] && gameState.dice[i] === moveDistance) {
+                        dieUsed = i;
+                        break;
+                    }
+                }
+            }
+            
+            if (dieUsed === null) return false;
+            
+            // Mark die as used
+            gameState.diceUsed[dieUsed] = true;
+            gameState.movesLeft--;
+            
+            // Remove piece from source
+            gameState.points[fromIndex].count--;
+            if (gameState.points[fromIndex].count === 0) {
+                gameState.points[fromIndex].player = 0;
+            }
+            
+            // Handle bearing off
+            if (toIndex < 0 || toIndex > 23) {
+                gameState.off[player]++;
+                gameStatusElement.textContent = `Jucătorul ${player} a scos o piesă!`;
+            } else {
+                // Handle hitting opponent's piece
+                if (gameState.points[toIndex].player === 3 - player && gameState.points[toIndex].count === 1) {
+                    gameState.points[toIndex].player = 0;
+                    gameState.points[toIndex].count = 0;
+                    gameState.bar[3 - player]++;
+                    gameStatusElement.textContent = `Jucătorul ${player} a capturat o piesă a adversarului!`;
+                }
+                
+                // Add piece to destination
+                gameState.points[toIndex].player = player;
+                gameState.points[toIndex].count++;
+            }
+            
+            // Check if player has won
+            if (gameState.off[player] === 15) {
+                gameState.gameOver = true;
+                gameStatusElement.textContent = `Jucătorul ${player} a câștigat jocul! Felicitări!`;
+                rollDiceButton.disabled = true;
+                return true;
+            }
+            
+            // If no moves left, switch player
+            if (gameState.movesLeft === 0) {
+                setTimeout(() => {
+                    switchPlayer();
+                    rollDice();
+                }, 1500);
+            } else {
+                updateStatus();
+            }
+            
+            return true;
+        }
+
+        // Update game status display
+        function updateStatus() {
+            const player = gameState.currentPlayer;
+            const diceValues = gameState.dice[0] > 0 ? `${gameState.dice[0]} și ${gameState.dice[1]}` : 'zarurile';
+            const movesLeft = gameState.movesLeft > 0 ? ` (${gameState.movesLeft} mutări rămase)` : '';
+            
+            if (gameState.dice[0] === 0) {
+                gameStatusElement.textContent = `Jucătorul ${player} trebuie să arunce zarurile.`;
+            } else {
+                gameStatusElement.textContent = `Jucătorul ${player} a aruncat ${diceValues}. Alege o piesă și o mutare validă.${movesLeft}`;
+            }
+        }
+
+        // Update the entire display
+        function updateDisplay() {
+            updateBoard();
+            updateStatus();
+            
+            // Update dice display
+            die1Element.textContent = gameState.dice[0];
+            die2Element.textContent = gameState.dice[1];
+            
+            // Update dice styling based on usage
+            die1Element.style.opacity = gameState.diceUsed[0] ? '0.5' : '1';
+            die2Element.style.opacity = gameState.diceUsed[1] ? '0.5' : '1';
+            
+            // Update button states
+            rollDiceButton.disabled = gameState.dice[0] > 0 || gameState.gameOver;
+            
+            // Update player highlights
+            player1Element.classList.toggle('current-player', gameState.currentPlayer === 1);
+            player2Element.classList.toggle('current-player', gameState.currentPlayer === 2);
+        }
+
+        // Handle point click
+        function handlePointClick(index) {
+            if (gameState.gameOver || gameState.dice[0] === 0) return;
+            
+            const point = gameState.points[index];
+            
+            // If a point is already selected, try to move to this point
+            if (gameState.selectedPoint !== null) {
+                const fromIndex = gameState.selectedPoint;
+                
+                // Check if this is a valid move
+                if (isValidMove(gameState.currentPlayer, fromIndex, index, gameState.dice[0]) || 
+                    isValidMove(gameState.currentPlayer, fromIndex, index, gameState.dice[1])) {
+                    
+                    if (makeMove(fromIndex, index)) {
+                        gameState.selectedPoint = null;
+                        updateDisplay();
+                    }
+                } else {
+                    // Invalid move, deselect
+                    gameState.selectedPoint = null;
+                    updateDisplay();
+                }
+            } 
+            // If no point is selected and this point belongs to current player, select it
+            else if (point.player === gameState.currentPlayer && point.count > 0) {
+                // Check if player has pieces on the bar
+                if (gameState.bar[gameState.currentPlayer] > 0) {
+                    gameStatusElement.textContent = 'Trebuie mai întâi să reintroduci piesele de pe bară!';
+                    return;
+                }
+                
+                gameState.selectedPoint = index;
+                updateDisplay();
+                gameStatusElement.textContent = `Piesa selectată. Alege o mutare validă.`;
+            }
+        }
+
+        // Handle bar click (for re-entering pieces)
+        function handleBarClick() {
+            if (gameState.gameOver || gameState.dice[0] === 0) return;
+            
+            const player = gameState.currentPlayer;
+            
+            // If player has pieces on the bar
+            if (gameState.bar[player] > 0) {
+                gameState.selectedPoint = 'bar';
+                updateDisplay();
+                gameStatusElement.textContent = 'Selectează un punct valid pentru a reintroduce piesa de pe bară.';
+            }
+        }
+
+        // Handle home area click (for bearing off)
+        function handleHomeClick(player) {
+            if (gameState.gameOver || gameState.dice[0] === 0 || player !== gameState.currentPlayer) return;
+            
+            // If a point is selected, try to bear off
+            if (gameState.selectedPoint !== null && gameState.selectedPoint !== 'bar') {
+                const fromIndex = gameState.selectedPoint;
+                
+                // Check if bearing off is possible
+                if (canBearOffWithDie(player, gameState.dice[0], fromIndex) || 
+                    canBearOffWithDie(player, gameState.dice[1], fromIndex)) {
+                    
+                    // Determine target index for bearing off
+                    const targetIndex = player === 1 ? -1 : 24;
+                    
+                    if (makeMove(fromIndex, targetIndex)) {
+                        gameState.selectedPoint = null;
+                        updateDisplay();
+                    }
+                }
+            }
+        }
+
+        // Provide a hint
+        function provideHint() {
+            if (gameState.gameOver || gameState.dice[0] === 0) return;
+            
+            const player = gameState.currentPlayer;
+            let hint = '';
+            
+            // Check if player has pieces on the bar
+            if (gameState.bar[player] > 0) {
+                for (let i = 0; i < 2; i++) {
+                    const die = gameState.dice[i];
+                    if (!gameState.diceUsed[i] && canEnterFromBar(player, die)) {
+                        const targetIndex = player === 1 ? 24 - die : die - 1;
+                        hint = `Reintrodu piesa de pe bară la punctul ${targetIndex + 1} cu zarul ${die}.`;
+                        break;
+                    }
+                }
+            } else {
+                // Look for any valid move
+                for (let fromIndex = 0; fromIndex < 24; fromIndex++) {
+                    if (gameState.points[fromIndex].player === player) {
+                        for (let i = 0; i < 2; i++) {
+                            const die = gameState.dice[i];
+                            if (gameState.diceUsed[i]) continue;
+                            
+                            const targetIndex = player === 1 ? fromIndex - die : fromIndex + die;
+                            
+                            // Check bearing off
+                            if (targetIndex < 0 || targetIndex > 23) {
+                                if (canBearOffWithDie(player, die, fromIndex)) {
+                                    hint = `Scoate piesa de la punctul ${fromIndex + 1} cu zarul ${die}.`;
+                                    break;
+                                }
+                            }
+                            // Check normal move
+                            else if (isValidMove(player, fromIndex, targetIndex, die)) {
+                                hint = `Mută piesa de la punctul ${fromIndex + 1} la punctul ${targetIndex + 1} cu zarul ${die}.`;
+                                break;
+                            }
+                        }
+                        if (hint) break;
+                    }
+                }
+            }
+            
+            if (hint) {
+                gameStatusElement.textContent = `Sfat: ${hint}`;
+            } else {
+                gameStatusElement.textContent = 'Nu am găsit nicio mutare bună. Încearcă altceva.';
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Roll dice button
+            rollDiceButton.addEventListener('click', () => {
+                rollDice();
+                updateDisplay();
+            });
+            
+            // New game button
+            newGameButton.addEventListener('click', () => {
+                initGame();
+                gameStatusElement.textContent = 'Joc nou început! Jucătorul 1 aruncă zarurile.';
+            });
+            
+            // Hint button
+            hintButton.addEventListener('click', provideHint);
+            
+            // Dice click handlers (for selecting which die to use)
+            die1Element.addEventListener('click', () => {
+                if (gameState.dice[0] > 0 && !gameState.diceUsed[0]) {
+                    gameState.diceUsed[0] = !gameState.diceUsed[0];
+                    gameState.movesLeft += gameState.diceUsed[0] ? -1 : 1;
+                    updateDisplay();
+                }
+            });
+            
+            die2Element.addEventListener('click', () => {
+                if (gameState.dice[1] > 0 && !gameState.diceUsed[1]) {
+                    gameState.diceUsed[1] = !gameState.diceUsed[1];
+                    gameState.movesLeft += gameState.diceUsed[1] ? -1 : 1;
+                    updateDisplay();
+                }
+            });
+            
+            // Point click handlers
+            for (let i = 0; i < 24; i++) {
+                const pointElement = document.getElementById(`point-${i}`);
+                pointElement.addEventListener('click', () => handlePointClick(i));
+            }
+            
+            // Bar click handler
+            const barElement = document.getElementById('bar');
+            barElement.addEventListener('click', handleBarClick);
+            
+            // Home area click handlers
+            document.getElementById('player1-home').addEventListener('click', () => handleHomeClick(1));
+            document.getElementById('player2-home').addEventListener('click', () => handleHomeClick(2));
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
